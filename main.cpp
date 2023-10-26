@@ -6,7 +6,7 @@ private:
 	std::string name;
 public:
 	Toy(std::string _name) : name(_name) {
-		std::cout << "Constructing class Toy with name." << std::endl;
+		std::cout << "Constructing class Toy with name \"" << this->name << "\"."<< std::endl;
 	}
 
 	Toy() {
@@ -14,7 +14,7 @@ public:
 	};
 
 	~Toy() {
-		std::cout << "Deleting class Toy." << std::endl;
+		std::cout << "Deleting class Toy \"" << this->name << "\"."<< std::endl;
 	}
 
 	std::string get_name() {
@@ -89,7 +89,7 @@ int main() {
 	show_count(ptr2);
 	Shared_ptr_toy ptr3 = ptr2;
 	show_count(ptr3);
-	Shared_ptr_toy ptr4 = make_shared_toy(new Toy("Ball"));
+	Shared_ptr_toy ptr4 = make_shared_toy(new Toy("Bone"));
 	show_count(ptr4);
 	Shared_ptr_toy ptr5 = make_shared_toy("Duck");
 	show_count(ptr5);
