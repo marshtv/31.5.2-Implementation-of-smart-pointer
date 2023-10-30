@@ -4,6 +4,7 @@
 class Toy {
 private:
 	std::string name;
+	int count = 0;
 public:
 	Toy(std::string _name) : name(_name) {
 		std::cout << "Constructing class Toy with name \"" << this->name << "\"."<< std::endl;
@@ -20,55 +21,78 @@ public:
 	std::string get_name() {
 		return this->name;
 	}
+
+	void set_count(int _count) {
+		this->count = _count;
+	}
+
+	int use_count() {
+		return count;
+	}
+
+	void incr_count() {
+		this->count++;
+	}
+
+	void decr_count() {
+		if (this->count > 0)
+			this->count--;
+	}
+
+	void reset_count() {
+		if (this->count > 0)
+			this->count = 0;
+	}
 };
 
 class Shared_ptr_toy {
 private:
 	Toy* ptr;
-	unsigned int count = 0;
 public:
 	Shared_ptr_toy(Toy* _ptr = nullptr) {
-		std::cout << "Constructing shared_ptr." << std::endl;
-		count = 0;
-		ptr = _ptr;
+		std::cout << "Constructing shared_ptr with nullptr." << std::endl;
+		this->ptr = _ptr;
+		this->ptr->set_count(0);
+	}
+
+	Shared_ptr_toy(std::string _toy_name) {
+		std::cout << "Constructing shared_ptr with nullptr." << std::endl;
+		this->ptr = new Toy(std::move(_toy_name));
+		this->ptr->incr_count();
 	}
 
 	Shared_ptr_toy(const Shared_ptr_toy& other) {
 		std::cout << "Making copy of shared_ptr." << std::endl;
-		ptr = other.ptr;
-		count++;
+		this->ptr = other.ptr;
+		this->ptr->incr_count();
 	}
 
 	Shared_ptr_toy& operator=(const Shared_ptr_toy& other) {
-		std::cout << "Initializing shared_ptr." << std::endl;
 		if (this == &other)
 			return *this;
-		ptr = other.ptr;
-		count++;
+		std::cout << "Initializing shared_ptr." << std::endl;
+		this->ptr = other.ptr;
+		this->ptr->incr_count();
 		return *this;
 	}
 
 	~Shared_ptr_toy() {
-		if ((ptr != nullptr) && (count == 0)) {
+		if ((ptr != nullptr) && (this->ptr->use_count() == 0)) {
 			std::cout << "Deleting shared_ptr." << std::endl;
-			delete ptr;
+			delete this->ptr;
 		} else {
 			std::cout << "Deleting copy." << std::endl;
-			count--;
+			this->ptr->decr_count();
 		}
 	}
 
-	unsigned int use_count() {
-		return this->count;
-	}
-
-	void reset() {
-		if (this->count > 0) this->count = 0;
+	int use_count() {
+		return this->ptr->use_count();
 	}
 };
 
-Shared_ptr_toy make_shared_toy(const std::string& _toy_name) {
-	Shared_ptr_toy ptr(new Toy(_toy_name));
+Shared_ptr_toy make_shared_toy( std::string _toy_name) {
+	Shared_ptr_toy ptr(std::move(_toy_name));
 	return ptr;
 }
 
@@ -83,11 +107,11 @@ void show_count(Shared_ptr_toy& _ptr) {
 }
 
 int main() {
-	Shared_ptr_toy ptr1(new Toy("Ball"));
+	Shared_ptr_toy ptr1("Ball");
 	show_count(ptr1);
 	Shared_ptr_toy ptr2(ptr1);
 	show_count(ptr2);
-	Shared_ptr_toy ptr3 = ptr2;
+	Shared_ptr_toy ptr3 = ptr1;
 	show_count(ptr3);
 	Shared_ptr_toy ptr4 = make_shared_toy(new Toy("Bone"));
 	show_count(ptr4);
